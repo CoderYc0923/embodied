@@ -8,14 +8,14 @@ from pc.backend.serial_arm import SerialArmBackend
 from pc.backend.sim_pybullet import SimArmBackend
 
 
-def create_backend(name: str = "console") -> ArmBackend:
+def create_backend(name: str = "console", **kwargs) -> ArmBackend:
     key = name.strip().lower()
     if key == "console":
-        return ConsoleBackend()
+        return ConsoleBackend(**kwargs)
     if key in {"sim", "pybullet", "sim_pybullet"}:
-        return SimArmBackend()
+        return SimArmBackend(**kwargs)
     if key in {"serial", "serial_arm"}:
-        return SerialArmBackend()
+        return SerialArmBackend(**kwargs)
     raise ValueError(
         f"Unknown backend '{name}'. Expected: console | sim | serial"
     )

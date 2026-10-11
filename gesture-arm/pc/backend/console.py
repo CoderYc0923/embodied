@@ -12,15 +12,21 @@ class ConsoleBackend(ArmBackend):
     def __init__(
         self,
         limits: JointLimits = DEFAULT_LIMITS,
+        home_joints: tuple[float, float, float, float] = HOME_JOINTS,
         stream: TextIO | None = None,
+        verbose: bool = True,
     ) -> None:
         self._limits = limits
+        self._home = JointFrame(*home_joints).clamp(limits)
         self._stream = stream  # None → print
+        self._verbose = verbose
         self._connected = False
         self._enabled = True
-        self._joints = JointFrame.home()
+        self._joints = self._home
 
-    def _log(self, message: str) -> None:
+    def _log(self, message: str, *, force: bool = False) -> None:
+        if not self._verbose and not force:
+            return
         if self._stream is None:
             print(message)
         else:
@@ -30,24 +36,27 @@ class ConsoleBackend(ArmBackend):
     def connect(self) -> None:
         self._connected = True
         self._enabled = True
-        self._joints = JointFrame.home()
-        self._log("[ConsoleBackend] CONNECT")
-        self._log(f"[ConsoleBackend] {self._joints.to_command()}  # home on connect")
+        self._joints = self._home
+        self._log("[ConsoleBackend] CONNECT", force=True)
+        self._log(
+            f"[ConsoleBackend] {self._joints.to_command()}  # home on connect",
+            force=True,
+        )
 
     def close(self) -> None:
         self._connected = False
-        self._log("[ConsoleBackend] CLOSE")
+        self._log("[ConsoleBackend] CLOSE", force=True)
 
     def home(self) -> None:
         self._ensure_connected()
-        self._joints = JointFrame(*HOME_JOINTS).clamp(self._limits)
-        self._log(f"[ConsoleBackend] HOME -> {self._joints.to_command()}")
+        self._joints = self._home
+        self._log(f"[ConsoleBackend] HOME -> {self._joints.to_command()}", force=True)
 
     def set_enabled(self, enabled: bool) -> None:
         self._ensure_connected()
         self._enabled = enabled
         state = "ENABLE" if enabled else "DISABLE"
-        self._log(f"[ConsoleBackend] {state}")
+        self._log(f"[ConsoleBackend] {state}", force=True)
 
     def set_joints(self, j1: float, j2: float, j3: float, grip: float) -> None:
         self._ensure_connected()
@@ -57,9 +66,7 @@ class ConsoleBackend(ArmBackend):
 
         target = JointFrame(j1, j2, j3, grip).clamp(self._limits)
         if target != JointFrame(j1, j2, j3, grip):
-            self._log(
-                f"[ConsoleBackend] ERR:RANGE clamped -> {target.to_command()}"
-            )
+            self._log(f"[ConsoleBackend] ERR:RANGE clamped -> {target.to_command()}")
         self._joints = target
         self._log(f"[ConsoleBackend] {self._joints.to_command()}")
 

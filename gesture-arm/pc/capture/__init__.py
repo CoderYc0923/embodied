@@ -1,1 +1,5 @@
-"""摄像头采集（阶段 1）。"""
+"""摄像头采集。"""
+
+from pc.capture.camera import Camera
+
+__all__ = ["Camera"]

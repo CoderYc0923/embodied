@@ -1,7 +1,13 @@
-# Phase 0: 无第三方硬依赖（标准库即可跑通 ConsoleBackend）
-# Phase 1+ 将启用以下依赖：
-# opencv-python>=4.8
-# mediapipe>=0.10
-# numpy>=1.24
+# Phase 0: 标准库即可
+# Phase 1+:
+# 说明：mediapipe 1.x 已移除 mp.solutions，本项目使用 Tasks API + models/hand_landmarker.task
+opencv-python>=4.8
+mediapipe>=0.10.30
+numpy>=1.24
+PyYAML>=6.0
+
+# Phase 2+:
 # pybullet>=3.2
+
+# Phase 5:
 # pyserial>=3.5

@@ -1,0 +1,79 @@
+# Gesture Arm 可调参数（改这里即可，不必先改代码）
+# 运行：python -m pc.app_main
+# 指定配置：python -m pc.app_main --config config.yaml
+#
+# 调参口诀：
+#   误触发多 → 提高 detection / tracking
+#   容易丢跟踪 → 略降阈值，或加大 miss_frames
+#   抖动 → 加大 deadband_deg，或降低 send_hz
+#   跟手钝 → 提高 send_hz，略减小 deadband_deg
+
+backend:
+  # console | sim | serial（阶段1仅 console）
+  name: console
+  # true 时在终端打印每一帧 J 命令
+  verbose: false
+
+camera:
+  device_id: 0
+  width: 640
+  height: 480
+  # 镜像后左右与直觉一致；若方向反了改为 false
+  mirror: true
+
+perception:
+  # 主跟随点：index_tip 更跟手；wrist 更稳
+  follow_point: index_tip
+  max_num_hands: 1
+
+  # MediaPipe 官方文档常见默认约 0.5；可调区间大致 0.4~0.8
+  min_hand_detection_confidence: 0.5
+  min_hand_presence_confidence: 0.5
+  min_tracking_confidence: 0.5
+
+  # 状态机防抖（帧）
+  # 进入 TRACKING 需要连续检出 hit_frames 帧
+  hit_frames: 3
+  # 离开 TRACKING 需要连续丢失 miss_frames 帧
+  miss_frames: 10
+
+  # pinch = 拇指食指距离 / (手部尺度 * pinch_norm_scale)
+  # 夹爪太灵敏就加大；太钝就减小。常见 1.5~2.5
+  pinch_norm_scale: 1.8
+
+control:
+  # 向后端下发频率上限（Hz），常见 15~30
+  send_hz: 20.0
+  # 关节变化小于该角度（度）则不发送，常见 1~3
+  deadband_deg: 1.5
+  # 启动时是否允许下发（空格键仍可切换）
+  start_enabled: true
+
+mapping:
+  # j3 暂固定角度；进阶前后轴时可改 use_scale_for_j3: true
+  j3_fixed: 90.0
+  use_scale_for_j3: false
+
+  # 将归一化 pinch 映射到夹爪的有效区间
+  pinch_min: 0.05
+  pinch_max: 1.0
+
+  # 仅当 use_scale_for_j3=true 时生效
+  scale_min: 0.05
+  scale_span: 0.25
+
+# 关节硬限位（度）。真机阶段务必按实物收窄。
+limits:
+  j1: [0.0, 180.0]
+  j2: [0.0, 180.0]
+  j3: [0.0, 180.0]
+  grip: [0.0, 100.0]
+
+# HOME 姿态（度）：j1, j2, j3, grip
+# 机械臂复位、待机的角度
+# j1: 底座左右转(角度)
+# j2: 肩/大臂(角度)
+# j3: 肘/小臂(角度)
+# grip: 夹爪(0打开-100关闭)
+home:
+  joints: [90.0, 90.0, 90.0, 0.0]

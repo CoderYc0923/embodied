@@ -8,38 +8,55 @@
 
 完整设计见：[docs/DESIGN.md](./docs/DESIGN.md)
 
-## 快速开始（阶段 0）
+## 环境
 
 ```bash
 cd gesture-arm
+python -m pip install -r requirements.txt
+```
+
+## 阶段 0：Backend 冒烟
+
+```bash
 python tools/backend_smoke_test.py
 ```
 
-应看到 `ConsoleBackend` 打印 `J,...` 序列，并以 `smoke test OK` 结束。
+## 阶段 1：真摄像头手部跟踪
+
+首次运行若缺少模型，会自动下载到 `models/hand_landmarker.task`（也可预先放好）。
+
+可调参数集中在 [`config.yaml`](./config.yaml)，改完直接重跑即可。
+
+```bash
+python -m pc.app_main
+python -m pc.app_main --config config.yaml
+```
+
+CLI 可临时覆盖配置：
+
+```bash
+python -m pc.app_main --camera 0
+python -m pc.app_main --follow wrist
+python -m pc.app_main --verbose-backend
+```
+
+快捷键：
+
+| 键 | 作用 |
+|----|------|
+| `Q` / `Esc` | 退出 |
+| `Space` | ENABLE / DISABLE |
+| `F` | 切换跟随点（指尖 / 手腕） |
+
+验收：画面显示骨架与 HUD；手进出画面时 `STATUS` 在 `TRACKING` / `LOST` 间切换；跟踪时 HUD 中 `J,...` 随手变化。
 
 ## 当前状态
 
-- [x] 设计方案（v0.3：仿真主线 + 真摄像头 + 统一接口）
-- [x] 阶段 0：环境与仓库骨架 / ArmBackend 接口 / ConsoleBackend
-- [ ] 阶段 1：真摄像头手部跟踪
+- [x] 设计方案（v0.3）
+- [x] 阶段 0：ArmBackend + ConsoleBackend
+- [x] 阶段 1：真摄像头手部跟踪 → ConsoleBackend
 - [ ] 阶段 2：PyBullet 仿真臂接入同一接口
 - [ ] 阶段 3：手部跟随仿真闭环
-- [ ] 阶段 4：控制进阶（限速、插值、工作空间等）
+- [ ] 阶段 4：控制进阶
 - [ ] 阶段 5：真机后置接入
 - [ ] 阶段 6：端侧迁移（可选）
-
-## 目录结构
-
-```text
-gesture-arm/
-├── docs/DESIGN.md
-├── protocols/commands.md
-├── pc/
-│   ├── types.py              # JointFrame（已冻结）
-│   ├── backend/              # ArmBackend + Console / Sim占位 / Serial占位
-│   └── app_main.py
-├── sim/                      # URDF / 场景（阶段 2）
-├── firmware/                 # 真机固件（阶段 5）
-├── tools/backend_smoke_test.py
-└── requirements.txt
-```

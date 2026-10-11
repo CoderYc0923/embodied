@@ -316,15 +316,16 @@ gesture-arm/
 
 ---
 
-### 阶段 1：真摄像头手部跟踪（2～4 天）
+### 阶段 1：真摄像头手部跟踪（2～4 天）✅
 
-- [ ] 摄像头取流 + 镜像
-- [ ] MediaPipe 骨架绘制
-- [ ] 输出 `HandState`
-- [ ] TRACKING/LOST 状态机
-- [ ] 先接到 `ConsoleBackend`（打印 `J` 帧）
+- [x] 摄像头取流 + 镜像（`pc/capture/camera.py`）
+- [x] MediaPipe 骨架绘制（`pc/perception/hands.py`）
+- [x] 输出 `HandState`
+- [x] TRACKING/LOST 状态机（`pc/perception/track_fsm.py`）
+- [x] 先接到 `ConsoleBackend`（`python -m pc.app_main`）
 
-**验收（P0）**：手进出画面状态正确；HUD 可读。
+**验收（P0）**：手进出画面状态正确；HUD 可读。  
+运行：`python -m pc.app_main`
 
 ---
 
